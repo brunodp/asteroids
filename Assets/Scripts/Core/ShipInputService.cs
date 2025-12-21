@@ -7,13 +7,16 @@ namespace Asteroids.Scripts.Core
     {
         private float _turn;
         private float _thrust;
+        private bool _fire;
 
         private readonly InputActionAsset _inputActions;
         private InputAction _turnAction;
         private InputAction _thrustAction;
+        private InputAction _fireAction;
         
         public float Turn => _turn;
         public float Thrust => _thrust;
+        public bool Fire => _fire;
 
         public ShipInputService(InputActionAsset inputActionAsset)
         {
@@ -28,16 +31,22 @@ namespace Asteroids.Scripts.Core
                 return;
             }
             
-            _turnAction = _inputActions.FindAction("GamePlay/Turn", true);
-            _thrustAction = _inputActions.FindAction("GamePlay/Thrust", true);
+            _turnAction = _inputActions.FindAction("Gameplay/Turn", true);
+            _thrustAction = _inputActions.FindAction("Gameplay/Thrust", true);
+            _fireAction = _inputActions.FindAction("Gameplay/Fire", true);
             
             _turnAction.performed += OnTurnPerformed;
             _turnAction.canceled += OnTurnCanceled;
             
             _thrustAction.performed += OnThrustPerformed;
             _thrustAction.canceled += OnThrustCanceled;
+            
+            _fireAction.performed += OnFirePerformed;
+            _fireAction.canceled += OnFireCanceled;
+            
+            _inputActions.Enable();
         }
-        
+
         public void Disable()
         {
             if (_inputActions == null)
@@ -59,7 +68,15 @@ namespace Asteroids.Scripts.Core
                 _thrustAction = null;
             }
             
+            if (_fireAction != null)
+            {
+                _fireAction.performed -= OnFirePerformed;
+                _fireAction.canceled -= OnFireCanceled;
+                _fireAction = null;
+            }
+            
             _inputActions.Disable();
+            _fire = false;
         }
 
 #region Handlers
@@ -81,6 +98,16 @@ namespace Asteroids.Scripts.Core
         private void OnThrustCanceled(InputAction.CallbackContext context)
         {
             _thrust = 0f;
+        }
+        
+        private void OnFirePerformed(InputAction.CallbackContext obj)
+        {
+            _fire = true;
+        }
+        
+        private void OnFireCanceled(InputAction.CallbackContext obj)
+        {
+            _fire = false;
         }
 #endregion
     }

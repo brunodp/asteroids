@@ -241,6 +241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _inputActions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
+  _poolsParent: {fileID: 0}
   _isInitialized: 0
 --- !u!4 &1270817345
 Transform:

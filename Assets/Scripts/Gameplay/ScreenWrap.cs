@@ -1,4 +1,3 @@
-using System;
 using Asteroids.Scripts.Utils;
 using UnityEngine;
 

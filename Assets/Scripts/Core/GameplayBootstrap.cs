@@ -1,3 +1,4 @@
+using Asteroids.Scripts.Framework.Pooling;
 using Asteroids.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,11 +8,14 @@ namespace Asteroids.Scripts.Core
     public sealed class GameplayBootstrap : Singleton<GameplayBootstrap>, IInitializable
     {
         [SerializeField] private InputActionAsset _inputActions;
+        [SerializeField] private Transform _poolsParent;
         
-        private ShipInputService _shipInput;
+        private ShipInputService _shipInputService;
+        private PoolService _poolService;
         public bool _isInitialized;
         
-        public IShipInput ShipInput => _shipInput;
+        public IShipInput ShipInput => _shipInputService;
+        public IPool Pool => _poolService;
         public bool IsInitialized => _isInitialized;
 
         protected override void Awake()
@@ -20,16 +24,24 @@ namespace Asteroids.Scripts.Core
 
             if (_instance != this)
             {
-                return;   
+                return;
             }
-
-            _shipInput = new ShipInputService(_inputActions);
+            
+            if (_poolsParent == null)
+            {
+                GameObject go = new GameObject("Pools");
+                go.transform.SetParent(transform, false);
+                _poolsParent = go.transform;
+            }
+            _poolService = new PoolService(_poolsParent);
+            
+            _shipInputService = new ShipInputService(_inputActions);
             Initialize();
         }
 
         private void OnEnable()
         {
-            if (_shipInput != null)
+            if (_shipInputService != null)
             {
                 Initialize();
             }
@@ -37,16 +49,21 @@ namespace Asteroids.Scripts.Core
         
         private void OnDisable()
         {
-            if (_shipInput != null)
+            if (_shipInputService != null)
             {
-                _shipInput.Disable();
+                _shipInputService.Disable();
                 _isInitialized = false;
             }
         }
 
         public void Initialize()
         {
-            _shipInput.Enable();
+            if (_isInitialized)
+            {
+                return;
+            }
+            
+            _shipInputService.Enable();
             _isInitialized = true;
         }
     }
