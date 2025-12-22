@@ -5,5 +5,6 @@ namespace Asteroids.Scripts.Core
         float Turn { get; }
         float Thrust { get; }
         bool Fire { get; }
+        bool AnyStart { get; }
     }
 }

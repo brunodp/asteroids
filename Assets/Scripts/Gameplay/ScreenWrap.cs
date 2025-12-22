@@ -1,4 +1,4 @@
-using Asteroids.Scripts.Utils;
+using Asteroids.Scripts.Framework;
 using UnityEngine;
 
 namespace Asteroids.Scripts.Gameplay

@@ -1,4 +1,4 @@
-using Asteroids.Scripts.Utils;
+using Asteroids.Scripts.Framework;
 using UnityEngine.InputSystem;
 
 namespace Asteroids.Scripts.Core
@@ -17,6 +17,7 @@ namespace Asteroids.Scripts.Core
         public float Turn => _turn;
         public float Thrust => _thrust;
         public bool Fire => _fire;
+        public bool AnyStart =>_fire || _thrust != 0f || _turn != 0f;
 
         public ShipInputService(InputActionAsset inputActionAsset)
         {

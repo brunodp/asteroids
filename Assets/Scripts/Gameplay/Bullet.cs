@@ -1,6 +1,6 @@
 using Asteroids.Scripts.Core;
 using Asteroids.Scripts.Framework.Pooling;
-using Asteroids.Scripts.Utils;
+using Asteroids.Scripts.Framework;
 using UnityEngine;
 
 namespace Asteroids.Scripts.Gameplay
@@ -28,32 +28,7 @@ namespace Asteroids.Scripts.Gameplay
             
             _rigidbody.gravityScale = 0;
         }
-
-        public void Launch(Vector2 position, float rotationDegrees, Vector2 velocity)
-        {
-            if (_rigidbody == null)
-            {
-                Log.Error("Bullet: Launch called before Awake / missing Rigidbody2D.", this);
-                return;
-            }
-            
-            _rigidbody.position = position;
-            _rigidbody.rotation = rotationDegrees;
-            _rigidbody.linearVelocity = velocity;
-            _rigidbody.angularVelocity = 0f;
-        }
         
-        public void OnSpawned()
-        {
-            _timeLeft = _lifetimeSeconds;
-        }
-
-        public void OnDespawned()
-        {
-            _rigidbody.linearVelocity = Vector2.zero;
-            _rigidbody.angularVelocity = 0f;
-        }
-
         private void Update()
         {
             _timeLeft -= Time.deltaTime;
@@ -72,5 +47,52 @@ namespace Asteroids.Scripts.Gameplay
             
             GameplayBootstrap.Instance.Pool.Despawn(gameObject);
         }
+
+        public void Launch(Vector2 position, float rotationDegrees, Vector2 velocity)
+        {
+            if (_rigidbody == null)
+            {
+                Log.Error("Bullet: Launch called before Awake / missing Rigidbody2D.", this);
+                return;
+            }
+            
+            _rigidbody.position = position;
+            _rigidbody.rotation = rotationDegrees;
+            _rigidbody.linearVelocity = velocity;
+            _rigidbody.angularVelocity = 0f;
+        }
+        
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            Asteroid asteroid = other.GetComponent<Asteroid>();
+            if (asteroid == null)
+            {
+                return;
+            }
+
+            asteroid.Hit(_rigidbody.position);
+
+            if (GameplayBootstrap.HasInstance())
+            {
+                GameplayBootstrap.Instance.Pool.Despawn(gameObject);
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
+        }
+        
+#region IPoolable
+        public void OnSpawned()
+        {
+            _timeLeft = _lifetimeSeconds;
+        }
+
+        public void OnDespawned()
+        {
+            _rigidbody.linearVelocity = Vector2.zero;
+            _rigidbody.angularVelocity = 0f;
+        }
+#endregion
     }
 }

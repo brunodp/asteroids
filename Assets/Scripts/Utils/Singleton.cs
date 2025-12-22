@@ -19,7 +19,7 @@ namespace Asteroids.Scripts.Utils
 
                 if (_instance == null)
                 {
-                    Log.Warning($"Singleton: cant find component of type {typeof(T)} in the current scene.");   
+                    Debug.LogWarning($"Singleton: cant find component of type {typeof(T)} in the current scene.");   
                 }
                 
                 return _instance;

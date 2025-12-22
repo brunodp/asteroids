@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Asteroids.Scripts.Utils
+namespace Asteroids.Scripts.Framework
 {
     public static class Log
     {
