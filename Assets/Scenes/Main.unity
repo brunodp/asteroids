@@ -546,6 +546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _startingLives: 3
   _shipController: {fileID: 916086141}
+  _restartCooldownSeconds: 1.75
 --- !u!4 &1118190936
 Transform:
   m_ObjectHideFlags: 0
@@ -593,6 +594,7 @@ MonoBehaviour:
   _gameplayController: {fileID: 1118190935}
   _inputActions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
   _asteroidsConfig: {fileID: 11400000, guid: aea04e86e55d6401d84ce1f369deb718, type: 2}
+  _shipConfig: {fileID: 11400000, guid: ac56ecc7175864191bab6d57e535b882, type: 2}
   _poolsParent: {fileID: 0}
 --- !u!4 &1270817345
 Transform:

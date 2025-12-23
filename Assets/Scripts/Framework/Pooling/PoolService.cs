@@ -11,6 +11,9 @@ namespace Asteroids.Scripts.Framework.Pooling
             private readonly Stack<GameObject> _stack;
             private readonly Transform _root;
             
+            private readonly HashSet<int> _inUse = new();
+            private readonly HashSet<int> _inStack = new();
+            
             public Pool(GameObject prefab, Transform root, int initialSize)
             {
                 _prefab = prefab;
@@ -22,21 +25,41 @@ namespace Asteroids.Scripts.Framework.Pooling
             
             public GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent = null)
             {
-                GameObject gameObject = _stack.Count > 0 ? _stack.Pop() : Object.Instantiate(_prefab);
+                GameObject instance = null;
                 
-                Transform transform = gameObject.transform;
+                while (_stack.Count > 0 && instance == null)
+                {
+                    instance = _stack.Pop();
+                    if (instance != null)
+                    {
+                        _inStack.Remove(instance.GetInstanceID());
+                    }
+                }
+
+                if (instance == null)
+                {
+                    instance = Object.Instantiate(_prefab);
+                }
+
+                int instanceId = instance.GetInstanceID();
+                if (_inUse.Contains(instanceId))
+                {
+                    Log.Error($"Pool: Spawn picked an IN-USE instance {instance.name} ({instanceId}). Double-despawn happened earlier.");
+                    instance = Object.Instantiate(_prefab);
+                    instanceId = instance.GetInstanceID();
+                }
+                
+                _inUse.Add(instanceId);
+                
+                Transform transform = instance.transform;
                 transform.SetParent(parent);
                 transform.SetPositionAndRotation(position, rotation);
                 
-                gameObject.SetActive(true);
+                instance.SetActive(true);
                 
-                IPoolable poolable = gameObject.GetComponent<IPoolable>();
-                if (poolable != null)
-                {
-                    poolable.OnSpawned();
-                }
+                instance.GetComponent<IPoolable>()?.OnSpawned();
                 
-                return gameObject;
+                return instance;
             }
 
             public void Despawn(GameObject instance)
@@ -46,14 +69,23 @@ namespace Asteroids.Scripts.Framework.Pooling
                     return;
                 }
                 
-                IPoolable poolable = instance.GetComponent<IPoolable>();
-                if (poolable != null)
+                int instanceId = instance.GetInstanceID();
+                if (!_inUse.Remove(instanceId))
                 {
-                    poolable.OnDespawned();
+                    Log.Error($"Pool: Double-despawn or foreign despawn {instance.name} ({instanceId}). Ignoring.");
+                    return;
                 }
+                
+                instance.GetComponent<IPoolable>()?.OnDespawned();
                 
                 instance.SetActive(false);
                 instance.transform.SetParent(_root, false);
+                
+                if (!_inStack.Add(instanceId))
+                {
+                    Log.Error($"Pool: Instance already in stack {instance.name} ({instanceId}). Ignoring push.");
+                    return;
+                }
                 
                 _stack.Push(instance);
             }
@@ -62,9 +94,12 @@ namespace Asteroids.Scripts.Framework.Pooling
             {
                 for (int i = 0; i < count; i++)
                 {
-                    GameObject gameObject = Object.Instantiate(_prefab, _root);
-                    gameObject.SetActive(false);
-                    _stack.Push(gameObject);
+                    GameObject instance = Object.Instantiate(_prefab, _root);
+                    instance.SetActive(false);
+                    
+                    int isntanceId = instance.GetInstanceID();
+                    _inStack.Add(isntanceId);
+                    _stack.Push(instance);
                 }
             }
         }

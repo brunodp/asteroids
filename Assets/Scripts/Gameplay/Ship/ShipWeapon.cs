@@ -1,17 +1,18 @@
 using Asteroids.Scripts.Core;
 using Asteroids.Scripts.Framework;
 using Asteroids.Scripts.Framework.Pooling;
+using Asteroids.Scripts.Gameplay;
+using Asteroids.Scripts.Gameplay.Ship.Config;
 using UnityEngine;
 
-namespace Asteroids.Scripts.Gameplay
+namespace Asteroids.Scripts.Gameplay.Ship
 {
     public class ShipWeapon : MonoBehaviour
     {
         [SerializeField] private Bullet _bulletPrefab;
         [SerializeField] private Transform _muzzle;
-        [SerializeField] private float _bulletSpeed = 18f;
-        [SerializeField] private float _fireCooldownSeconds = 0.12f;
-        
+
+        private ShipConfig _shipConfig;
         private IPool _pool;
         private float _cooldown;
 
@@ -23,8 +24,9 @@ namespace Asteroids.Scripts.Gameplay
             }
         }
 
-        public void Initialize(IPool pool)
+        public void Initialize(ShipConfig shipConfig, IPool pool)
         {
+            _shipConfig = shipConfig;
             _pool = pool;
         }
 
@@ -52,7 +54,7 @@ namespace Asteroids.Scripts.Gameplay
             }
             
             Fire(shipVelocity);
-            _cooldown = _fireCooldownSeconds;
+            _cooldown = _shipConfig.Weapon.FireCooldownSeconds;
         }
 
         private void Fire(Vector2 shipVelocity)
@@ -60,7 +62,7 @@ namespace Asteroids.Scripts.Gameplay
             Vector2 position = _muzzle.position;
             Vector2 direction = transform.up;
             
-            Vector2 bulletVelocity = shipVelocity + direction * _bulletSpeed;
+            Vector2 bulletVelocity = shipVelocity + direction * _shipConfig.Weapon.BulletSpeed;
             float rotation = transform.eulerAngles.z;
             
             GameObject go = GameplayBootstrap.Instance.Pool.Spawn(_bulletPrefab.gameObject, position, Quaternion.Euler(0f, 0f, rotation), null);

@@ -13,13 +13,16 @@ MonoBehaviour:
   m_Name: AsteroidsConfig
   m_EditorClassIdentifier: 
   _initialLargeCount: 4
+  _extraAsteroidsPerWave: 1
+  _nextWaveDelaySeconds: 1.5
   _childrenOnSplit: 2
   _splitSpeed: 3.5
   _spawnPadding: 0.75
-  _minAngularVelocity: -120
-  _maxAngularVelocity: 120
   _minSpawnSpeed: 1.5
   _maxSpawnSpeed: 3
+  _minAngularVelocity: -120
+  _maxAngularVelocity: 120
   _largePrefab: {fileID: 5720509065260169364, guid: 0fa15179d27f240ae8f30d9cad6738c6, type: 3}
   _mediumPrefab: {fileID: 1016382695412647506, guid: 80ecf9095ef8346b4b5d1a81a7dd8995, type: 3}
   _smallPrefab: {fileID: 6630359532809439052, guid: 8b85164d8f7a949cb84c273147b251dd, type: 3}
+  _typeTable: {fileID: 11400000, guid: 0277f83b6cae54ac396b90c37c077f79, type: 2}

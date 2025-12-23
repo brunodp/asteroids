@@ -2,6 +2,8 @@ using System;
 using Asteroids.Scripts.Core;
 using Asteroids.Scripts.Framework;
 using Asteroids.Scripts.Utils;
+using Asteroids.Scripts.Gameplay.Asteroids;
+using Asteroids.Scripts.Gameplay.Ship;
 using UnityEngine;
 
 namespace Asteroids.Scripts.Gameplay

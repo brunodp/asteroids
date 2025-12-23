@@ -1,16 +1,16 @@
 using Asteroids.Scripts.Core;
 using Asteroids.Scripts.Framework;
 using Asteroids.Scripts.Framework.Pooling;
+using Asteroids.Scripts.Gameplay.Asteroids;
+using Asteroids.Scripts.Gameplay.Ship.Config;
 using Asteroids.Scripts.Utils;
 using UnityEngine;
 
-namespace Asteroids.Scripts.Gameplay
+namespace Asteroids.Scripts.Gameplay.Ship
 {
     [RequireComponent(typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
     public class ShipController : MonoBehaviour
     {
-        [SerializeField] private float _respawnDelaySeconds = 1.5f;
-        [SerializeField] private float _invulnerabilitySeconds = 2.0f;
         [SerializeField] private ShipMovement _shipMovement;
         [SerializeField] private ShipWeapon _shipWeapon;
         
@@ -18,13 +18,10 @@ namespace Asteroids.Scripts.Gameplay
         [SerializeField] private ThrustVfx _thrustVfx;
         [SerializeField] private GameObject _shipExplosionVfxPrefab;
         
-        [Header("Invulnerability Blink")]
-        [SerializeField] private float _blinkIntervalSeconds = 0.12f;
-        [SerializeField, Range(0f, 1f)] private float _blinkAlpha = 0.5f;
-        
         private Collider2D _collider;
         private SpriteRenderer _spriteRenderer;
         private GameplayController _gameplayController;
+        private ShipConfig _shipConfig;
         
         private IShipInput _input;
         private IPool _pool;
@@ -50,6 +47,7 @@ namespace Asteroids.Scripts.Gameplay
 
             _input = GameplayBootstrap.Instance.ShipInput;
             _pool = GameplayBootstrap.Instance.Pool;
+            _shipConfig = GameplayBootstrap.Instance.ShipConfig;
             if (_input == null)
             {
                 Log.Error("ShipController: IShipInput is null.", this);
@@ -57,7 +55,8 @@ namespace Asteroids.Scripts.Gameplay
                 return;
             }
 
-            _shipWeapon.Initialize(GameplayBootstrap.Instance.Pool);
+            _shipWeapon.Initialize(_shipConfig, GameplayBootstrap.Instance.Pool);
+            _shipMovement.Initialize(_shipConfig);
             
             _isRuntimeReady = true;
         }
@@ -146,7 +145,7 @@ namespace Asteroids.Scripts.Gameplay
             }
 
             _isDead = true;
-            _respawnTimer = _respawnDelaySeconds;
+            _respawnTimer = _shipConfig.RespawnDelaySeconds;
 
             _collider.enabled = false;
 
@@ -212,7 +211,7 @@ namespace Asteroids.Scripts.Gameplay
             _spriteRenderer.enabled = true;
             _collider.enabled = true;
             
-            _invulnerabilityTimer = _invulnerabilitySeconds;
+            _invulnerabilityTimer = _shipConfig.InvulnerabilitySeconds;
 
             _blinkTimer = 0f;
             _blinkDim = false;
@@ -250,11 +249,11 @@ namespace Asteroids.Scripts.Gameplay
                 return;
             }
 
-            _blinkTimer = _blinkIntervalSeconds;
+            _blinkTimer = _shipConfig.BlinkIntervalSeconds;
             _blinkDim = !_blinkDim;
 
             Color blinkColor = _spriteRenderer.color;
-            blinkColor.a = _blinkDim ? _blinkAlpha : _baseAlpha;
+            blinkColor.a = _blinkDim ? _shipConfig.BlinkAlpha : _baseAlpha;
             _spriteRenderer.color = blinkColor;
         }
     }

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using Asteroids.Scripts.Framework;
 using Asteroids.Scripts.Framework.Pooling;
 using Asteroids.Scripts.Framework.RNG;
+using Asteroids.Scripts.Gameplay.Asteroids.Config;
 using UnityEngine;
 
-namespace Asteroids.Scripts.Gameplay
+namespace Asteroids.Scripts.Gameplay.Asteroids
 {
     public sealed class AsteroidsManager
     {
@@ -11,6 +13,7 @@ namespace Asteroids.Scripts.Gameplay
         private readonly IPool _pool;
         private readonly IRng _rng;
         private readonly Camera _camera;
+        
         private int _currentWaveAsteroidCount;
         private int _waveNumber;
         private float _nextWaveTimer;
@@ -61,10 +64,17 @@ namespace Asteroids.Scripts.Gameplay
             
             _waveNumber++;
             int largeCount = _config.InitialLargeCount + (_waveNumber - 1) * _config.ExtraAsteroidsPerWave;
-
+            
             for (int i = 0; i < largeCount; i++)
             {
-                Spawn(_config.LargePrefab, RandomEdgePosition(), RandomVelocity(), RandomAngularVelocity());
+                AsteroidType type = AsteroidType.Normal;
+
+                if (_config.TypeTable != null)
+                {
+                    type = _config.TypeTable.RollType(_rng);
+                }
+
+                Spawn(_config.LargePrefab, type, RandomEdgePosition(), RandomVelocity(), RandomAngularVelocity());
             }
         }
         
@@ -98,6 +108,17 @@ namespace Asteroids.Scripts.Gameplay
             }
 
             int count = _config.ChildrenOnSplit;
+            float splitSpeed = _config.SplitSpeed;
+            if (_config.TypeTable != null)
+            {
+                AsteroidTypeModifier modifier;
+                if (_config.TypeTable.TryGetModifier(asteroid.Type, out modifier))
+                {
+                    count += modifier.ChildrenDelta;
+                    splitSpeed *= modifier.SplitSpeedMultiplier;
+                }
+            }
+            
             for (int i = 0; i < count; i++)
             {
                 Vector2 direction = _rng.InsideUnitCircle();
@@ -107,18 +128,35 @@ namespace Asteroids.Scripts.Gameplay
                 }
                 direction.Normalize();
 
-                Vector2 velocity = direction * _config.SplitSpeed;
+                Vector2 velocity = direction * splitSpeed;
                 float angularVelocity = RandomAngularVelocity();
-
-                Spawn(childPrefab, hitPosition, velocity, angularVelocity);
+                
+                Spawn(childPrefab, asteroid.Type, hitPosition, velocity, angularVelocity);
             }
         }
 
-        private void Spawn(Asteroid prefab, Vector2 position, Vector2 velocity, float angularVelocity)
+        private void Spawn(Asteroid prefab, AsteroidType type, Vector2 position, Vector2 velocity, float angularVelocity)
         {
             GameObject go = _pool.Spawn(prefab.gameObject, position, Quaternion.identity, null);
             Asteroid asteroid = go.GetComponent<Asteroid>();
-            asteroid.Initialize(prefab.Tier, position, velocity, angularVelocity);
+            
+            Color tint = Color.white;
+            
+            if (_config.TypeTable != null)
+            {
+                AsteroidTypeModifier modifier;
+                if (_config.TypeTable.TryGetModifier(type, out modifier))
+                {
+                    tint = modifier.Tint;
+                }
+            }
+            
+            asteroid.Initialize(prefab.Tier, type, position, velocity, angularVelocity, tint);
+            
+            if (asteroid.Type != type)
+            {
+                Log.Error($"AsteroidsManager: Type mismatch after Initialize. Expected {type}, got {asteroid.Type}.", asteroid);
+            }
 
             _asteroids.Add(asteroid);
             _currentWaveAsteroidCount++;

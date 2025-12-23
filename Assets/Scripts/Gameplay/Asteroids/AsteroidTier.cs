@@ -1,4 +1,4 @@
-namespace Asteroids.Scripts.Gameplay
+namespace Asteroids.Scripts.Gameplay.Asteroids
 {
     public enum AsteroidTier
     {

@@ -2,6 +2,9 @@ using Asteroids.Scripts.Framework.Pooling;
 using Asteroids.Scripts.Framework.RNG;
 using Asteroids.Scripts.Gameplay;
 using Asteroids.Scripts.Utils;
+using Asteroids.Scripts.Gameplay.Asteroids;
+using Asteroids.Scripts.Gameplay.Asteroids.Config;
+using Asteroids.Scripts.Gameplay.Ship.Config;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,6 +15,7 @@ namespace Asteroids.Scripts.Core
         [SerializeField] private GameplayController _gameplayController;
         [SerializeField] private InputActionAsset _inputActions;
         [SerializeField] private AsteroidsConfig _asteroidsConfig;
+        [SerializeField] private ShipConfig _shipConfig;
         [SerializeField] private Transform _poolsParent;
         
         private ShipInputService _shipInputService;
@@ -25,6 +29,7 @@ namespace Asteroids.Scripts.Core
         public IRng Rng => _rngService;
         public AsteroidsManager AsteroidsManager => _asteroidsManager;
         public GameplayController GameplayController => _gameplayController;
+        public ShipConfig ShipConfig => _shipConfig;
         public bool IsInitialized => _isInitialized;
 
         protected override void Awake()

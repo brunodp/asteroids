@@ -28,6 +28,11 @@ namespace Asteroids.Scripts.Framework.RNG
             return Random.Range(minInclusive, maxInclusive);
         }
 
+        public float Value()
+        {
+            return Random.value;
+        }
+
         public Vector2 InsideUnitCircle()
         {
             return Random.insideUnitCircle;

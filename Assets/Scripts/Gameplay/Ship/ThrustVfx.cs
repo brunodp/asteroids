@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Asteroids.Scripts.Gameplay
+namespace Asteroids.Scripts.Gameplay.Ship
 {
     public sealed class ThrustVfx : MonoBehaviour
     {
